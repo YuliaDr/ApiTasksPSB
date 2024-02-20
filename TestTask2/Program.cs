@@ -2,14 +2,15 @@
 using System.Text.Json;
 using RestSharp;
 
-namespace TestTask1;
+namespace TestTask2;
 
 internal class Program
 {
     public static async Task Main()
     {
-        var client = new RestClient("https://swapi.dev/api/");
-        var request = new RestRequest("people/1");
+        var client = new RestClient("https://reqres.in/api/");
+        var request = new RestRequest("users");
+        request.AddParameter("page", "2");
         var response = await client.GetAsync(request);
 
         if (response.StatusCode == HttpStatusCode.OK && response.Content != null)
@@ -20,14 +21,17 @@ internal class Program
                 PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
             };
 
-            var getPersonByIdResponse =
-                JsonSerializer.Deserialize<GetPersonByIdResponse>(response.Content, serializeOptions);
+            var getPageOfUsersResponse =
+                JsonSerializer.Deserialize<GetPageOfUsersResponse>(response.Content, serializeOptions);
 
-            if (getPersonByIdResponse?.Films != null)
+            if (getPageOfUsersResponse != null)
             {
-                foreach (var film in getPersonByIdResponse.Films)
+                foreach (var user in getPageOfUsersResponse.Data)
                 {
-                    Console.WriteLine(film);
+                    if (user.FirstName == "George" && user.LastName == "Edwards")
+                    {
+                        Console.WriteLine(user.Email);
+                    }
                 }
             }
         }
